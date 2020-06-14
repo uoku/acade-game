@@ -1,40 +1,39 @@
+import json
+import sys
 import NIOserver as server
 import listen_control
-import json
 import Map
 
 ##############################################
 N_PLAYER = 2
 MAP_ID = 0
-P0_POS = (0, 0)
-P1_POS = (120, 120)
+POS = ((0, 0), (120, 120))
 ##############################################
+port = 8888
+if len(sys.argv) == 2:
+    port = int(sys.argv[1])
 
-socket, reader, player_index = server.wait_for_gamer(N_PLAYER)
+socket, reader, player_index = server.wait_for_gamer(N_PLAYER, port=port)
 all_player_info = []
 base_msg = {}
 base_msg['map'] = {}
-base_msg['map']['id'] = 1
+base_msg['map']['id'] = MAP_ID
 base_msg['players'] = []
-for player, idx in zip(reader, player_index):
+for player, addr in zip(reader, player_index):
+    idx = player_index[addr]
     info = {}
     info['id'] = idx
-    info['x'] = P0_POS[1] if idx == 0 else P1_POS[1]
-    info['y'] = P0_POS[0] if idx == 0 else P1_POS[0]
+    info['x'] = POS[idx][1]
+    info['y'] = POS[idx][0]
     info['status'] = 'ALIVE'
     base_msg['players'].append(info)
 
 for player, idx in zip(reader, player_index):
     if player is not socket:
         msg = base_msg.copy()
-        msg['map'] = {}
-        msg['map']['id'] = 1
-        msg['players'] = []
-        for player, idx in zip(reader, player_index):
-
-        msg = [{'head': "game start"}]
+        msg['control'] = player_index[idx]
         player.send((json.dumps(msg)).encode('utf-8'))
-solidobject = [[0, 0]]
-map = Map.Map(15, 13, , 100, N_PLAYER, solidobject)
+solidobject = [[0, 0, 0]]
+map = Map.Map(4, 4, 160, 160, N_PLAYER, solidobject)
 
 listen_control.listen_control(socket, reader, map, player_index)

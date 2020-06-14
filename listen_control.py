@@ -10,13 +10,15 @@ def listen_control(socket, reader, map, player_index):
 
         for s in readable:
             if s is not socket:
-                message = s.recv(10000)
+                message = s.recv(4096)
                 message = json.loads(message.decode('utf-8'))
+                print(f'Server receives {json.dumps(message, indent=4)}')
                 name, port = s.getpeername()
-                playername = player_index[str(port)]
-                sname, sport = s.getpeername()
+                playername = player_index[f'{name}:{str(port)}']
+                if f'player{playername}' not in message:
+                    continue
                 # 處理json message
-                action = int(message)
+                action = message[f'player{playername}']
                 # end
                 if (map.player[playername][5] is 3) or (map.player[playername][5] is 4):
                     donothing = True
