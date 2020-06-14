@@ -3,7 +3,12 @@ import pygame
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = '127.0.0.1'
-client.connect((host, 8888))
+
+port = 8888
+if len(sys.argv) == 3:
+    port = int(sys.argv[2])
+
+client.connect((host, port))
 
 
 def listen():
