@@ -1,5 +1,6 @@
 import math
 import copy
+from threading import Timer
 
 
 ## water ball 還沒加到solid obj
@@ -160,6 +161,17 @@ class Map():
                     (water_pos[1][0] == pos[0] and water_pos[3][1] <= pos[1] <= water_pos[1][1]):
                 player[5] = 3  # 泡泡狀
                 # 設定5秒後若還是泡泡狀 則dead  加到 一個list 若被救 timer 要刪除
+
+                def time_to_dead(person):
+                    if person[5] == 3:
+                        person[5] = 4
+                        self.all_change.append({
+                            'header': 'player_dead',
+                            'player': player[3]
+                        })
+
+                ttt = Timer(5, time_to_dead, [player])
+                ttt.start()
 
                 #
                 buble_player.append([player[3]])
