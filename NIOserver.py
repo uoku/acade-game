@@ -4,7 +4,7 @@ from socket import socket, AF_INET, SOCK_STREAM, error
 import pickle, time, datetime
 import pickle
 
-
+PORT = 8888
 def wait_for_gamer(num_play):
     reader = []
     writer = []
@@ -12,7 +12,7 @@ def wait_for_gamer(num_play):
     player_index = {}
     i = 0
     with socket(AF_INET, SOCK_STREAM) as serverSocket:  # 創建socket
-        serverSocket.bind(("127.0.0.1", 8888))  # bind to 127.0.0.1:8888
+        serverSocket.bind(("127.0.0.1", PORT))  # bind to 127.0.0.1:8888
         serverSocket.setblocking(0)  # NIO
         reader.append(serverSocket)
         serverSocket.listen(num_play+1)  # 監聽 num_play=最大監聽數量
@@ -47,6 +47,7 @@ def wait_for_gamer(num_play):
                         s.close()
                         count_numofuser -= 1
     print("game start")
+    reader = reader[1:]
     return serverSocket, reader, player_index
 
 
