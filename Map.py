@@ -39,7 +39,7 @@ class Map():
         self.size = [90, 90]
         self.status = 0
         self.player = []
-        play_pos = [[0, 0], [14, 11]]
+        play_pos = [[0, 0], [120, 120]]
         for i in range(playernum):
             position = play_pos[i]
             direciotn = 1
@@ -62,16 +62,15 @@ class Map():
         x, y = self.player[player_num][3]
         new_x, new_y = x, y
         if direct is 0:
-            new_y = y + move_dis
+            new_y = y - move_dis
         elif direct is 1:
             new_x = x + move_dis
         elif direct is 2:
-            new_y = y - move_dis
+            new_y = y + move_dis
         elif direct is 3:
             new_x = x - move_dis
         else:
-            print("move error")
-            raise
+            raise ValueError('move error')
         for obj in self.solidobj:
             if colision([new_x, new_y, self.size[0], self.size[1]], [obj[0], obj[1], self.cell[0], self.cell[1]]):
                 new_x, new_y = x, y
@@ -86,7 +85,7 @@ class Map():
             new_y = self.map[1] - self.size[1]
         # end
         #撞死人判斷
-        for player in self.player:
+        for idx, player in enumerate(self.player):
             if (player is not self.player[player_num]) and (player[5] is 3):
                 if colision([player[3][0], player[3][1], player[4][0], player[4][1]],
                             [self.player[player_num][3][0], self.player[player_num][3][1],
@@ -94,7 +93,8 @@ class Map():
                     player[5] = 4
                     self.all_change.append({
                         'header': 'player_dead',
-                        'player': player[3]
+                        'idx': idx,
+                        'position': player[3]
                     })
 
         # 吃東西判斷
@@ -113,14 +113,13 @@ class Map():
                         self.add_player_power(player_num)
                         # self.player[player_num][2] += 1
                     else:
-                        print('eat error')
-                        raise
+                        raise ValueError('eat error')
         # 改 self.player 的 position
         self.player[player_num][3] = [new_x, new_y]
         # 加到 all change
         self.all_change.append({
             'header': 'player',
-            'player': player_num,
+            'idx': player_num,
             'position': [new_x, new_y]
         })
         #
@@ -166,7 +165,7 @@ class Map():
         self.all_change.append({
             'header': 'water_area',
             'area': water_pos,
-            'player_to_buble': buble_player
+            'player_to_bubble': buble_player
         })
 
     def end_bomb(self, x, y):
@@ -185,7 +184,7 @@ class Map():
         self.player[player_num][6] = direction
         self.all_change.append({
             'header': 'player',
-            'player': player_num,
+            'idx': player_num,
             'direction': direction
         })
 
