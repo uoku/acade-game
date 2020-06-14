@@ -19,16 +19,18 @@ def colision(p1, p2): #p[x , y ,w ,h]
     else:
         return False
 
+# solidobj [x ,y ,種類] 0:固體 1:鞋子 2:+水球數 3:+威力 4:水球(會爆炸的)
 
 class Map():
     def __init__(self, x, y, w, h, playernum, solidobj):  # w,h is cell   x,y is 有幾格
-        self.all_change = []
-        self.timedis = 20
-        self.cell = [w, h]
-        self.map = [x * w, y * h]
-        self.cellmap = [x, y]
-        self.solidobj = solidobj
-        self.cell_solidobj = []
+        self.eatobj_size =[100, 100]    # 鞋子 水球 ... 的 大小
+        self.all_change = []            # 用來存 變化的狀態
+        self.timedis = 20               # 移動距離
+        self.cell = [w, h]              # 地圖方格大小
+        self.map = [x * w, y * h]       # 地圖像素大小
+        self.cellmap = [x, y]           # 地圖方格
+        self.solidobj = solidobj        # 固體 [包含吃的東西]
+        self.cell_solidobj = []         # 用於水球爆炸判斷
         for obj in solidobj:
             self.cell_solidobj.append([obj[0] // w, obj[1] // w])
         # end
@@ -73,7 +75,7 @@ class Map():
             print("move error")
             raise
         for obj in self.solidobj:
-            if colision([new_x, new_y, self.size[0], self.size[1]], [obj[0], obj[1], self.cell[0], self.cell[1]]):
+            if colision([new_x, new_y, self.size[0], self.size[1]], [obj[0], obj[1], self.cell[0], self.cell[1]]) and (obj[2] == 0):
                 new_x, new_y = x, y
         # 邊界判斷
         if new_x < 0:
@@ -100,7 +102,7 @@ class Map():
         # 吃東西判斷
         if new_x != x and new_y != y:
             for object in self.solidobj:
-                if [object[0], object[1]] == [new_x, new_y]:
+                if colision([object[0], object[1], self.eatobj_size[0], self.eatobj_size[1]], [new_x, new_y, self.size[0], self.size[1]]):
                     # object[2] 是 物品種類
                     if object[2] == 3:  # 鞋子
                         self.add_player_speed(player_num)
@@ -131,10 +133,8 @@ class Map():
     def set_waterball(self, player_num):
         if self.player[player_num][1] is not 0:
             x, y = self.player[player_num][3]
-            print(x,y)
             a = math.floor(x // self.cell[0])
             b = math.floor(y // self.cell[1])
-            print(a,b)
             self.waterball.append([a, b])
             self.player[player_num][1] -= 1
             # 加到all change
@@ -159,6 +159,9 @@ class Map():
             if (water_pos[0][0] <= pos[0] <= water_pos[2][0] and pos[1] == water_pos[0][1]) or \
                     (water_pos[1][0] == pos[0] and water_pos[3][1] <= pos[1] <= water_pos[1][1]):
                 player[5] = 3  # 泡泡狀
+                # 設定5秒後若還是泡泡狀 則dead  加到 一個list 若被救 timer 要刪除
+
+                #
                 buble_player.append([player[3]])
         # end
         #變泡泡用位置判斷
