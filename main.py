@@ -33,7 +33,7 @@ for player, idx in zip(reader, player_index):
         msg = base_msg.copy()
         msg['control'] = player_index[idx]
         player.send((json.dumps(msg)).encode('utf-8'))
-solidobject = [[0, 0, 0]]
-map = Map.Map(4, 4, 160, 160, N_PLAYER, solidobject)
+solidobject = []
+map = Map.Map(4, 4, 40, 40, N_PLAYER, solidobject)
 
 listen_control.listen_control(socket, reader, map, player_index)

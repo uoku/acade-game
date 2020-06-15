@@ -26,7 +26,7 @@ class Map():
     def __init__(self, x, y, w, h, playernum, solidobj):  # w,h is cell   x,y is 有幾格
         self.eatobj_size =[100, 100]    # 鞋子 水球 ... 的 大小
         self.all_change = []            # 用來存 變化的狀態
-        self.timedis = 20               # 移動距離
+        self.timedis = 1               # 移動距離
         self.cell = [w, h]              # 地圖方格大小
         self.map = [x * w, y * h]       # 地圖像素大小
         self.cellmap = [x, y]           # 地圖方格
@@ -39,7 +39,7 @@ class Map():
         self.init_speed = 5
         self.init_waterball = 2
         self.init_power = 2
-        self.size = [90, 90]
+        self.size = [30, 30]
         self.status = 0
         self.player = []
         play_pos = [[0, 0], [120, 120]]
@@ -133,8 +133,7 @@ class Map():
     def set_waterball(self, player_num):
         if self.player[player_num][1] is not 0:
             x, y = self.player[player_num][3]
-            a = math.floor(x // self.cell[0])
-            b = math.floor(y // self.cell[1])
+            a, b = [math.ceil((x+self.player[player_num][4][0]//2)//self.cell[0]), math.ceil((y+self.player[player_num][4][1]//2)//self.cell[0])]
             self.waterball.append([a, b])
             self.player[player_num][1] -= 1
             # 加到all change
@@ -153,9 +152,11 @@ class Map():
         #  water_pos = [left forword right back]
         water_pos = self.get_max_pos(x, y, power)
         # 炸成泡判斷
-        buble_player=[]
-        for player in self.player:
+        buble_player_pos=[]
+        buble_player_idx=[]
+        for idx, player in enumerate(self.player):
             pos = player[3]
+            pos = [math.ceil((pos[0]+player[4][0]//2)//self.cell[0]), math.ceil((pos[1]+player[4][1])//self.cell[1])]
             if (water_pos[0][0] <= pos[0] <= water_pos[2][0] and pos[1] == water_pos[0][1]) or \
                     (water_pos[1][0] == pos[0] and water_pos[3][1] <= pos[1] <= water_pos[1][1]):
                 player[5] = 3  # 泡泡狀
@@ -166,6 +167,7 @@ class Map():
                         person[5] = 4
                         self.all_change.append({
                             'header': 'player_dead',
+                            'idx': idx,
                             'player': player[3]
                         })
 
@@ -173,14 +175,17 @@ class Map():
                 ttt.start()
 
                 #
-                buble_player.append([player[3]])
+                buble_player_pos.append([player[3]])
+                buble_player_idx.append(idx)
         # end
         #變泡泡用位置判斷
         self.waterball.remove([x, y])
         self.all_change.append({
             'header': 'water_area',
             'area': water_pos,
-            'player_to_bubble': buble_player
+            'position': (x,y),
+            'player_to_bubble_pos': buble_player_pos,
+            'player_to_bubble_idx': buble_player_idx,
         })
 
     def end_bomb(self, x, y):
@@ -258,4 +263,4 @@ class Map():
             if self.cell_colidsion(fx, now):
                 fy = now - 1
                 break
-        return [[lx, ly], [fx, fy], [rx, ry], [bx, by]]
+        return [[lx, ly], [bx, by], [rx, ry], [fx, fy]] #因為坐標系不同，上下交換
