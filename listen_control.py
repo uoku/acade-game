@@ -67,6 +67,7 @@ def listen_control(socket, reader, map, player_index):
                         map.bomb(player_num, x, y)
                         # send map info
                         reply = map.get_change()
+                        print('Sending reply1, ', reply)
                         # end
                         for client in reader:
                             client.send(json.dumps(reply).encode('utf-8'))
@@ -76,6 +77,7 @@ def listen_control(socket, reader, map, player_index):
                             map.end_bomb(x, y)
                             # send map info
                             reply = map.get_change()
+                            print('Sending reply2, ', reply)
                             # end
                             for client in reader:
                                 client.send(json.dumps(reply).encode('utf-8'))

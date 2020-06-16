@@ -6,12 +6,25 @@ import Map
 
 ##############################################
 N_PLAYER = 2
-MAP_ID = 0
+MAP_ID = 1
 POS = ((0, 0), (120, 120))
 ##############################################
 port = 8888
 if len(sys.argv) == 2:
     port = int(sys.argv[1])
+
+
+def loadBlocks(p):
+    l = []
+    with open(p, 'r') as f:
+        line = f.readline()
+        splited = line.split(',')
+        x = splited[0]
+        y = splited[1]
+        status = splited[2]
+        l.append((x, y, status))
+    return l
+
 
 socket, reader, player_index = server.wait_for_gamer(N_PLAYER, port=port)
 all_player_info = []
@@ -33,8 +46,7 @@ for player, idx in zip(reader, player_index):
         msg = base_msg.copy()
         msg['control'] = player_index[idx]
         player.send((json.dumps(msg)).encode('utf-8'))
-solidobject = []
-map = Map.Map(4, 4, 40, 40, N_PLAYER, solidobject)
-map.set_client(reader)
+solidobject = loadBlocks('blocks.txt')
+map = Map.Map(15, 13, 40, 40, N_PLAYER, solidobject)
 
 listen_control.listen_control(socket, reader, map, player_index)
