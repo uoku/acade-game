@@ -10,9 +10,9 @@ def listen_control(socket, reader, map, player_index):
 
         for s in readable:
             if s is not socket:
-                message = s.recv(4096)
-                message = json.loads(message.decode('utf-8'))
-                print(f'Server receives {json.dumps(message, indent=4)}')
+                message = s.recv(4096).decode('utf-8')
+                print(f'Server receives {message}')
+                message = json.loads(message)
                 name, port = s.getpeername()
                 playername = player_index[f'{name}:{str(port)}']
                 if f'player{playername}' not in message:

@@ -36,7 +36,8 @@ class Map():
         self.solidobj = solidobj  # 固體 [包含吃的東西]
         self.cell_solidobj = []  # 用於水球爆炸判斷
         for obj in self.solidobj:
-            self.cell_solidobj.append([obj[0] // w, obj[1] // w])
+            if obj[2] == 0:
+                self.cell_solidobj.append([obj[0] // w, obj[1] // w])
         # end
         self.waterball = []
         self.init_speed = 5
@@ -172,6 +173,7 @@ class Map():
     def bomb(self, player_num, x, y):
         self.player[player_num][1] += 1
         power = self.player[player_num][2]
+        print(power)
         #  water_pos = [left forword right back]
         water_pos = self.get_max_pos(x, y, power)
         # 炸成泡判斷
@@ -196,8 +198,10 @@ class Map():
                             'player': person[3]
                         })
                     reply = self.get_change()
-                    for client in self.client:
-                        client.send(json.dumps(reply).encode('utf-8'))
+                    print(reply)
+                    print(self.client)
+                    for asdf in self.client:
+                        asdf.send(json.dumps(reply).encode('utf-8'))
 
                 ttt = Timer(5, time_to_dead, [player, idx])
                 ttt.start()
@@ -245,6 +249,7 @@ class Map():
         return temp
 
     def get_max_pos(self, x, y, power):
+        # cell 的 座標
         center_x, center_y = x, y
         lx, ly = x - power, y
         rx, ry = x + power, y
@@ -253,42 +258,42 @@ class Map():
 
         # left max
         for now in range(x, -1, -1):
+            if self.cell_colidsion(now, ly):
+                lx = now + 1
+                break
             if now == lx:
                 break
             if now == 0:
                 lx = 0
                 break
-            if self.cell_colidsion(now, ly):
-                lx = now + 1
-                break
         # right max
         for now in range(x, self.cellmap[0], 1):
+            if self.cell_colidsion(now, ry):
+                rx = now - 1
+                break
             if now == rx:
                 break
             if now == self.cellmap[0] - 1:
                 rx = now
                 break
-            if self.cell_colidsion(now, ry):
-                rx = now - 1
-                break
         # back max
         for now in range(y, -1, -1):
+            if self.cell_colidsion(bx, now):
+                by = now + 1
+                break
             if now == by:
                 break
             if now == 0:
                 by = 0
                 break
-            if self.cell_colidsion(bx, now):
-                by = now + 1
-                break
         # forword max
         for now in range(y, self.cellmap[1], 1):
+            if self.cell_colidsion(fx, now):
+                fy = now - 1
+                break
             if now == fy:
                 break
             if now == self.cellmap[1] - 1:
                 fy = now
-                break
-            if self.cell_colidsion(fx, now):
-                fy = now - 1
                 break
         return [[lx, ly], [bx, by], [rx, ry], [fx, fy]]  # 因為坐標系不同，上下交換

@@ -52,5 +52,6 @@ for player, idx in zip(reader, player_index):
         player.send((json.dumps(msg)).encode('utf-8'))
 solidobject = loadBlocks('blocks.txt')
 map = Map.Map(15, 13, 40, 40, N_PLAYER, solidobject)
+map.set_client(reader)
 
 listen_control.listen_control(socket, reader, map, player_index)
