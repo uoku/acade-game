@@ -18,11 +18,13 @@ def loadBlocks(p):
     l = []
     with open(p, 'r') as f:
         line = f.readline()
-        splited = line.split(',')
-        x = splited[0]
-        y = splited[1]
-        status = splited[2]
-        l.append((x, y, status))
+        while line:
+            splited = line.split(',')
+            x = int(splited[0])
+            y = int(splited[1])
+            status = int(splited[2])
+            l.append((x, y, status))
+            line = f.readline()
     return l
 
 solidobject = loadBlocks('blocks.txt')
