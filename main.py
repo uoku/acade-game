@@ -32,7 +32,7 @@ solidobject = loadBlocks('blocks.txt')
 for obj in solidobject:
     if obj[2] == 5:
         obj[2] = random.randint(1,3)
-print(solidobject)
+
 socket, reader, player_index = server.wait_for_gamer(N_PLAYER, port=port)
 all_player_info = []
 base_msg = {}

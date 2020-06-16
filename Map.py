@@ -135,7 +135,6 @@ class Map():
                         raise ValueError('eat error')
                     self.all_change.append({
                         'header': 'player_ability',
-                        'idx': player_num,
                         'position': [object[0], object[1]]
                     })
 
