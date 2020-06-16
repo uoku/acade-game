@@ -25,6 +25,7 @@ def loadBlocks(p):
         l.append((x, y, status))
     return l
 
+solidobject = loadBlocks('blocks.txt')
 
 socket, reader, player_index = server.wait_for_gamer(N_PLAYER, port=port)
 all_player_info = []
@@ -32,6 +33,7 @@ base_msg = {}
 base_msg['map'] = {}
 base_msg['map']['id'] = MAP_ID
 base_msg['players'] = []
+base_msg['solidobject'] = solidobject
 for player, addr in zip(reader, player_index):
     idx = player_index[addr]
     info = {}

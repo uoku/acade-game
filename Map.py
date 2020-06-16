@@ -3,36 +3,38 @@ import copy
 from threading import Timer
 import json
 
+
 # water ball 還沒加到solid obj
 
 def colision(p1, p2):  # p[x , y ,w ,h]
-    minx1 = p1[0]-p1[2]/2
-    maxx1 = p1[0]+p1[2]/2
-    miny1 = p1[1]-p1[3]/2
-    maxy1 = p1[1]+p1[3]/2
+    minx1 = p1[0] - p1[2] / 2
+    maxx1 = p1[0] + p1[2] / 2
+    miny1 = p1[1] - p1[3] / 2
+    maxy1 = p1[1] + p1[3] / 2
 
-    minx2 = p2[0]-p2[2]/2
-    maxx2 = p2[0]+p2[2]/2
-    miny2 = p2[1]-p2[3]/2
-    maxy2 = p2[1]+p2[3]/2
+    minx2 = p2[0] - p2[2] / 2
+    maxx2 = p2[0] + p2[2] / 2
+    miny2 = p2[1] - p2[3] / 2
+    maxy2 = p2[1] + p2[3] / 2
     if (maxx1 > minx2 and maxx2 > minx1 and maxy1 > miny2 and maxy2 > miny1):
         return True
     else:
         return False
 
+
 # solidobj [x ,y ,種類] 0:固體 1:鞋子 2:+水球數 3:+威力 4:水球(會爆炸的) 5:Breakable
 
 
 class Map():
-    def __init__(self, x, y, w, h, playernum, solidobj):    # w,h is cell   x,y is 有幾格
-        self.eatobj_size = [100, 100]                        # 鞋子 水球 ... 的 大小
-        self.all_change = []                                # 用來存 變化的狀態
-        self.timedis = 1                                    # 移動距離
-        self.cell = [w, h]                                  # 地圖方格大小
-        self.map = [x * w, y * h]                           # 地圖像素大小
-        self.cellmap = [x, y]                               # 地圖方格
-        self.solidobj = solidobj                            # 固體 [包含吃的東西]
-        self.cell_solidobj = []                             # 用於水球爆炸判斷
+    def __init__(self, x, y, w, h, playernum, solidobj):  # w,h is cell   x,y is 有幾格
+        self.eatobj_size = [100, 100]  # 鞋子 水球 ... 的 大小
+        self.all_change = []  # 用來存 變化的狀態
+        self.timedis = 1  # 移動距離
+        self.cell = [w, h]  # 地圖方格大小
+        self.map = [x * w, y * h]  # 地圖像素大小
+        self.cellmap = [x, y]  # 地圖方格
+        self.solidobj = solidobj  # 固體 [包含吃的東西]
+        self.cell_solidobj = []  # 用於水球爆炸判斷
         for obj in self.solidobj:
             self.cell_solidobj.append([obj[0] // w, obj[1] // w])
         # end
@@ -79,7 +81,8 @@ class Map():
         else:
             raise ValueError('move error')
         for obj in self.solidobj:
-            if colision([new_x, new_y, self.size[0], self.size[1]], [obj[0], obj[1], self.cell[0], self.cell[1]]) and (obj[2] == 0):
+            if colision([new_x, new_y, self.size[0], self.size[1]], [obj[0], obj[1], self.cell[0], self.cell[1]]) and (
+                    obj[2] == 0):
                 new_x, new_y = x, y
         # 邊界判斷
         if new_x < 0:
@@ -107,7 +110,8 @@ class Map():
         # 吃東西判斷
         if new_x != x and new_y != y:
             for object in self.solidobj:
-                if colision([object[0], object[1], self.eatobj_size[0], self.eatobj_size[1]], [new_x, new_y, self.size[0], self.size[1]]):
+                if colision([object[0], object[1], self.eatobj_size[0], self.eatobj_size[1]],
+                            [new_x, new_y, self.size[0], self.size[1]]):
                     # object[2] 是 物品種類
                     if object[2] == 3:  # 鞋子
                         self.add_player_speed(player_num)
@@ -129,7 +133,7 @@ class Map():
             'idx': player_num,
             'position': [new_x, new_y]
         })
-    
+
     # 放開時回傳
     def press_up(self, playernum, direction):
         self.all_change.append({
@@ -138,15 +142,14 @@ class Map():
             'direction': direction
         })
 
-
     def change_status(self, player_num, status):
         self.player[player_num][5] = status
 
     def set_waterball(self, player_num):
         if self.player[player_num][1] is not 0:
             x, y = self.player[player_num][3]
-            a, b = [math.ceil((x+self.player[player_num][4][0]//2)//self.cell[0]),
-                    math.ceil((y+self.player[player_num][4][1]//2)//self.cell[0])]
+            a, b = [math.ceil((x + self.player[player_num][4][0] // 2) // self.cell[0]),
+                    math.ceil((y + self.player[player_num][4][1] // 2) // self.cell[0])]
             self.waterball.append([a, b])
             self.player[player_num][1] -= 1
             # 加到all change
@@ -169,11 +172,12 @@ class Map():
         buble_player_idx = []
         for idx, player in enumerate(self.player):
             pos = player[3]
-            pos = [math.ceil((pos[0]+player[4][0]//2)//self.cell[0]),
-                   math.ceil((pos[1]+player[4][1])//self.cell[1])]
+            pos = [math.ceil((pos[0] + player[4][0] // 2) // self.cell[0]),
+                   math.ceil((pos[1] + player[4][1]) // self.cell[1])]
             if (water_pos[0][0] <= pos[0] <= water_pos[2][0] and pos[1] == water_pos[0][1]) or \
                     (water_pos[1][0] == pos[0] and water_pos[3][1] <= pos[1] <= water_pos[1][1]):
                 player[5] = 3  # 泡泡狀
+
                 # 設定5秒後若還是泡泡狀 則dead  加到 一個list 若被救 timer 要刪除
 
                 def time_to_dead(person, ind):
@@ -187,7 +191,6 @@ class Map():
                     reply = self.get_change()
                     for client in self.client:
                         client.send(json.dumps(reply).encode('utf-8'))
-                    
 
                 ttt = Timer(5, time_to_dead, [player, idx])
                 ttt.start()
