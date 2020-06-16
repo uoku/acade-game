@@ -34,7 +34,6 @@ class Map():
         self.map = [x * w, y * h]  # 地圖像素大小
         self.cellmap = [x, y]  # 地圖方格
         self.solidobj = solidobj  # 固體 [包含吃的東西]
-        print(self.solidobj)
         self.cell_solidobj = []  # 用於水球爆炸判斷
         for obj in self.solidobj:
             if obj[2] == 0:
@@ -59,7 +58,7 @@ class Map():
         self.client = client
 
     def add_player_speed(self, player_num):
-        self.player[player_num][0] += 1
+        self.player[player_num][0] += 0.2
 
     def add_player_waterball(self, player_num):
         self.player[player_num][1] += 1
@@ -116,7 +115,6 @@ class Map():
                 pos = [math.ceil((new_x + self.player[player_num][4][0] // 2) // self.cell[0]),
                         math.ceil((new_y + self.player[player_num][4][1] // 2) // self.cell[1])]
                 if (pos[0] == object[0]//self.cell[0]) and (pos[1] == object[1]//self.cell[1]):
-                    print(object[2])
                     # object[2] 是 物品種類
                     if object[2] == 1:  # 鞋子
                         self.add_player_speed(player_num)
@@ -202,8 +200,6 @@ class Map():
                             'player': person[3]
                         })
                     reply = self.get_change()
-                    print(reply)
-                    print(self.client)
                     for asdf in self.client:
                         asdf.send(json.dumps(reply).encode('utf-8'))
 

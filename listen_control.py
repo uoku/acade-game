@@ -7,7 +7,6 @@ from threading import Timer
 
 def listen_control(socket, reader, map, player_index):
     def parseStackedJson(s):
-        print('Parsing...')
         stack = []
         ret = []
         start = 0
@@ -29,7 +28,6 @@ def listen_control(socket, reader, map, player_index):
         for s in readable:
             if s is not socket:
                 recv_str = s.recv(4096).decode('utf-8')
-                print(f'Receives {recv_str} from client...')
                 if recv_str == '':
                     raise RuntimeError('Empty string error!')
                 try:
@@ -42,7 +40,6 @@ def listen_control(socket, reader, map, player_index):
                     msg_queue.append(ss)
                 while len(msg_queue) != 0:
                     message = json.loads(msg_queue.popleft())
-                    print(f'Server receives {json.dumps(message, indent=4)}')
                     name, port = s.getpeername()
                     playername = player_index[f'{name}:{str(port)}']
                     if f'player{playername}' not in message:
@@ -93,11 +90,9 @@ def listen_control(socket, reader, map, player_index):
 
                         # 設定timer 等待爆炸
                         def waterball_bomb(player_num, x, y):
-                            print(x, y, player_num)
                             map.bomb(player_num, x, y)
                             # send map info
                             reply = map.get_change()
-                            print('Sending reply1, ', reply)
                             # end
                             for client in reader:
                                 client.send(json.dumps(reply).encode('utf-8'))
@@ -107,7 +102,6 @@ def listen_control(socket, reader, map, player_index):
                                 map.end_bomb(x, y)
                                 # send map info
                                 reply = map.get_change()
-                                print('Sending reply2, ', reply)
                                 # end
                                 for client in reader:
                                     client.send(json.dumps(reply).encode('utf-8'))
@@ -120,7 +114,6 @@ def listen_control(socket, reader, map, player_index):
                             t.start()
                     else:
                         # errors
-                        print('something wrong')
                         # end
                     # 從map 物件 拿出更改的資訊 存成json
                     reply = map.get_change()
