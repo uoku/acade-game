@@ -1,7 +1,7 @@
 import math
 import copy
 from threading import Timer
-
+import json
 
 ## water ball 還沒加到solid obj
 
@@ -49,6 +49,9 @@ class Map():
             player_list = [self.init_speed, self.init_waterball, self.init_power, position, self.size, self.status,
                            direciotn]
             self.player.append(player_list)
+
+    def set_client(self, client):
+        self.client = client
 
     def add_player_speed(self, player_num):
         self.player[player_num][0] += 1
@@ -125,7 +128,15 @@ class Map():
             'idx': player_num,
             'position': [new_x, new_y]
         })
-        #
+    
+    # 放開時回傳
+    def press_up(self, playernum, direction):
+        self.all_change.append({
+            'header': 'press_up',
+            'idx': playernum,
+            'direction': direction
+        })
+
 
     def change_status(self, player_num, status):
         self.player[player_num][5] = status
@@ -162,16 +173,20 @@ class Map():
                 player[5] = 3  # 泡泡狀
                 # 設定5秒後若還是泡泡狀 則dead  加到 一個list 若被救 timer 要刪除
 
-                def time_to_dead(person):
+                def time_to_dead(person, ind):
                     if person[5] == 3:
                         person[5] = 4
                         self.all_change.append({
                             'header': 'player_dead',
-                            'idx': idx,
-                            'player': player[3]
+                            'idx': ind,
+                            'player': person[3]
                         })
+                    reply = self.get_change()
+                    for client in self.client:
+                        client.send(json.dumps(reply).encode('utf-8'))
+                    
 
-                ttt = Timer(5, time_to_dead, [player])
+                ttt = Timer(5, time_to_dead, [player, idx])
                 ttt.start()
 
                 #

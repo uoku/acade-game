@@ -22,6 +22,19 @@ def listen_control(socket, reader, map, player_index):
                 # end
                 if (map.player[playername][5] is 3) or (map.player[playername][5] is 4):
                     donothing = True
+                # 放開的時候 回傳 
+                # right
+                elif action == 10:
+                    map.press_up(playername, 10)
+                # down
+                elif action == 20:
+                    map.press_up(playername, 20)                
+                # left
+                elif action == 30:
+                    map.press_up(playername, 30)
+                # up
+                elif action == 40:
+                    map.press_up(playername, 40)
                 # 根據 收到的json 做移動跟放水球
                 elif action is 0:
                     # move up
