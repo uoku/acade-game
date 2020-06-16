@@ -178,7 +178,6 @@ class Map():
     def bomb(self, player_num, x, y):
         self.player[player_num][1] += 1
         power = self.player[player_num][2]
-        print(power)
         #  water_pos = [left forword right back]
         water_pos = self.get_max_pos(x, y, power)
         # 炸成泡判斷
@@ -189,7 +188,7 @@ class Map():
             pos = [math.ceil((pos[0] + player[4][0] // 2) // self.cell[0]),
                    math.ceil((pos[1] + player[4][1] // 2) // self.cell[1])]
             if (water_pos[0][0] <= pos[0] <= water_pos[2][0] and pos[1] == water_pos[0][1]) or \
-                    (water_pos[1][0] == pos[0] and water_pos[3][1] <= pos[1] <= water_pos[1][1]):
+                    (water_pos[1][0] == pos[0] and water_pos[3][1] >= pos[1] >= water_pos[1][1]):
                 player[5] = 3  # 泡泡狀
 
                 # 設定5秒後若還是泡泡狀 則dead  加到 一個list 若被救 timer 要刪除
