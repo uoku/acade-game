@@ -110,21 +110,28 @@ class Map():
         # 吃東西判斷
         if new_x != x and new_y != y:
             for object in self.solidobj:
-                if colision([object[0], object[1], self.eatobj_size[0], self.eatobj_size[1]],
-                            [new_x, new_y, self.size[0], self.size[1]]):
+                pos = [math.ceil((new_x + self.player[player_num][4][0] // 2) // self.cell[0]),
+                       math.ceil((new_y + self.player[player_num][4][1]) // self.cell[1])]
+                if (pos[0] == object[0]) and (pos[1] == object[1]):
                     # object[2] 是 物品種類
-                    if object[2] == 3:  # 鞋子
+                    if object[2] == 1:  # 鞋子
                         self.add_player_speed(player_num)
                         ##
                         # self.player[player_num][0] += 1
-                    elif object[2] == 4:  # 水球
+                    elif object[2] == 2:  # 水球
                         self.add_player_waterball(player_num)
                         # self.player[player_num][1] += 1
-                    elif object[2] == 5:  # 威力
+                    elif object[2] == 3:  # 威力
                         self.add_player_power(player_num)
                         # self.player[player_num][2] += 1
                     else:
                         raise ValueError('eat error')
+                    self.all_change.append({
+                        'header': 'player_ability',
+                        'idx': player_num,
+                        'type': object[2]
+                    })
+
         # 改 self.player 的 position
         self.player[player_num][3] = [new_x, new_y]
         # 加到 all change
