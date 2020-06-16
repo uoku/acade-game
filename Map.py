@@ -34,15 +34,17 @@ class Map():
         self.map = [x * w, y * h]  # 地圖像素大小
         self.cellmap = [x, y]  # 地圖方格
         self.solidobj = solidobj  # 固體 [包含吃的東西]
+        print(self.solidobj)
         self.cell_solidobj = []  # 用於水球爆炸判斷
         for obj in self.solidobj:
-            self.cell_solidobj.append([obj[0] // w, obj[1] // w])
+            if obj[2] == 0:
+                self.cell_solidobj.append([obj[0] // w, obj[1] // w])
         # end
         self.waterball = []
         self.init_speed = 5
         self.init_waterball = 2
         self.init_power = 2
-        self.size = [40,40]
+        self.size = [30,30]
         self.status = 0
         self.player = []
         play_pos = [[0, 0], [480, 480]]
@@ -81,17 +83,18 @@ class Map():
         else:
             raise ValueError('move error')
         for obj in self.solidobj:
-            if colision([new_x, new_y, self.size[0], self.size[1]], [obj[0], obj[1], self.cell[0], self.cell[1]]) and (
-                    obj[2] == 0):
-                new_x, new_y = x, y
+            if obj[2] == 0:
+                if colision([new_x, new_y, self.size[0], self.size[1]], [obj[0], obj[1], self.cell[0], self.cell[1]]) and (
+                        obj[2] == 0):
+                    new_x, new_y = x, y
         # 邊界判斷
         if new_x < 0:
             new_x = 0
-        if new_x > self.map[0]:
+        if new_x + self.size[0] > self.map[0]:
             new_x = self.map[0] - self.size[0]
         if new_y < 0:
             new_y = 0
-        if new_y > self.map[1]:
+        if new_y + self.size[1] > self.map[1]:
             new_y = self.map[1] - self.size[1]
         # end
         # 撞死人判斷
@@ -108,21 +111,25 @@ class Map():
                     })
 
         # 吃東西判斷
-        if new_x != x and new_y != y:
-            for object in self.solidobj:
+        for object in self.solidobj:
+            if object[2] != 0 : 
                 pos = [math.ceil((new_x + self.player[player_num][4][0] // 2) // self.cell[0]),
-                       math.ceil((new_y + self.player[player_num][4][1]) // self.cell[1])]
+                        math.ceil((new_y + self.player[player_num][4][1] // 2) // self.cell[1])]
                 if (pos[0] == object[0]//self.cell[0]) and (pos[1] == object[1]//self.cell[1]):
+                    print(object[2])
                     # object[2] 是 物品種類
                     if object[2] == 1:  # 鞋子
                         self.add_player_speed(player_num)
+                        self.solidobj.remove(object)
                         ##
                         # self.player[player_num][0] += 1
                     elif object[2] == 2:  # 水球
                         self.add_player_waterball(player_num)
+                        self.solidobj.remove(object)
                         # self.player[player_num][1] += 1
                     elif object[2] == 3:  # 威力
                         self.add_player_power(player_num)
+                        self.solidobj.remove(object)                        
                         # self.player[player_num][2] += 1
                     else:
                         raise ValueError('eat error')
@@ -172,6 +179,7 @@ class Map():
     def bomb(self, player_num, x, y):
         self.player[player_num][1] += 1
         power = self.player[player_num][2]
+        print(power)
         #  water_pos = [left forword right back]
         water_pos = self.get_max_pos(x, y, power)
         # 炸成泡判斷
@@ -180,7 +188,7 @@ class Map():
         for idx, player in enumerate(self.player):
             pos = player[3]
             pos = [math.ceil((pos[0] + player[4][0] // 2) // self.cell[0]),
-                   math.ceil((pos[1] + player[4][1]) // self.cell[1])]
+                   math.ceil((pos[1] + player[4][1] // 2) // self.cell[1])]
             if (water_pos[0][0] <= pos[0] <= water_pos[2][0] and pos[1] == water_pos[0][1]) or \
                     (water_pos[1][0] == pos[0] and water_pos[3][1] <= pos[1] <= water_pos[1][1]):
                 player[5] = 3  # 泡泡狀
@@ -196,8 +204,10 @@ class Map():
                             'player': person[3]
                         })
                     reply = self.get_change()
-                    for client in self.client:
-                        client.send(json.dumps(reply).encode('utf-8'))
+                    print(reply)
+                    print(self.client)
+                    for asdf in self.client:
+                        asdf.send(json.dumps(reply).encode('utf-8'))
 
                 ttt = Timer(5, time_to_dead, [player, idx])
                 ttt.start()
@@ -245,6 +255,7 @@ class Map():
         return temp
 
     def get_max_pos(self, x, y, power):
+        # cell 的 座標
         center_x, center_y = x, y
         lx, ly = x - power, y
         rx, ry = x + power, y
@@ -253,42 +264,42 @@ class Map():
 
         # left max
         for now in range(x, -1, -1):
+            if self.cell_colidsion(now, ly):
+                lx = now + 1
+                break
             if now == lx:
                 break
             if now == 0:
                 lx = 0
                 break
-            if self.cell_colidsion(now, ly):
-                lx = now + 1
-                break
         # right max
         for now in range(x, self.cellmap[0], 1):
+            if self.cell_colidsion(now, ry):
+                rx = now - 1
+                break
             if now == rx:
                 break
             if now == self.cellmap[0] - 1:
                 rx = now
                 break
-            if self.cell_colidsion(now, ry):
-                rx = now - 1
-                break
         # back max
         for now in range(y, -1, -1):
+            if self.cell_colidsion(bx, now):
+                by = now + 1
+                break
             if now == by:
                 break
             if now == 0:
                 by = 0
                 break
-            if self.cell_colidsion(bx, now):
-                by = now + 1
-                break
         # forword max
         for now in range(y, self.cellmap[1], 1):
+            if self.cell_colidsion(fx, now):
+                fy = now - 1
+                break
             if now == fy:
                 break
             if now == self.cellmap[1] - 1:
                 fy = now
-                break
-            if self.cell_colidsion(fx, now):
-                fy = now - 1
                 break
         return [[lx, ly], [bx, by], [rx, ry], [fx, fy]]  # 因為坐標系不同，上下交換

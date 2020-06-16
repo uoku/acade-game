@@ -23,12 +23,16 @@ def loadBlocks(p):
             x = int(splited[0])
             y = int(splited[1])
             status = int(splited[2])
-            l.append((x, y, status))
+            l.append([x, y, status])
             line = f.readline()
     return l
 
+import random
 solidobject = loadBlocks('blocks.txt')
-
+for obj in solidobject:
+    if obj[2] == 5:
+        obj[2] = random.randint(1,3)
+print(solidobject)
 socket, reader, player_index = server.wait_for_gamer(N_PLAYER, port=port)
 all_player_info = []
 base_msg = {}
@@ -50,7 +54,7 @@ for player, idx in zip(reader, player_index):
         msg = base_msg.copy()
         msg['control'] = player_index[idx]
         player.send((json.dumps(msg)).encode('utf-8'))
-solidobject = loadBlocks('blocks.txt')
 map = Map.Map(13, 13, 40, 40, N_PLAYER, solidobject)
+map.set_client(reader)
 
 listen_control.listen_control(socket, reader, map, player_index)
