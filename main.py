@@ -7,7 +7,7 @@ import Map
 ##############################################
 N_PLAYER = 2
 MAP_ID = 1
-POS = ((0, 0), (120, 120))
+POS = ((0, 0), (480, 480))
 ##############################################
 port = 8888
 if len(sys.argv) == 2:
@@ -51,6 +51,6 @@ for player, idx in zip(reader, player_index):
         msg['control'] = player_index[idx]
         player.send((json.dumps(msg)).encode('utf-8'))
 solidobject = loadBlocks('blocks.txt')
-map = Map.Map(15, 13, 40, 40, N_PLAYER, solidobject)
+map = Map.Map(13, 13, 40, 40, N_PLAYER, solidobject)
 
 listen_control.listen_control(socket, reader, map, player_index)

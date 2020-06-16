@@ -45,7 +45,7 @@ class Map():
         self.size = [30, 30]
         self.status = 0
         self.player = []
-        play_pos = [[0, 0], [560, 480]]
+        play_pos = [[0, 0], [480, 480]]
         for i in range(playernum):
             position = play_pos[i]
             direciotn = 1
