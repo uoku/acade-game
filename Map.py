@@ -112,7 +112,7 @@ class Map():
             for object in self.solidobj:
                 pos = [math.ceil((new_x + self.player[player_num][4][0] // 2) // self.cell[0]),
                        math.ceil((new_y + self.player[player_num][4][1]) // self.cell[1])]
-                if (pos[0] == object[0]) and (pos[1] == object[1]):
+                if (pos[0] == object[0]//self.cell[0]) and (pos[1] == object[1]//self.cell[1]):
                     # object[2] 是 物品種類
                     if object[2] == 1:  # 鞋子
                         self.add_player_speed(player_num)
@@ -129,7 +129,7 @@ class Map():
                     self.all_change.append({
                         'header': 'player_ability',
                         'idx': player_num,
-                        'type': object[2]
+                        'position': [object[0], object[1]]
                     })
 
         # 改 self.player 的 position
