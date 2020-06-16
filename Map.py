@@ -42,7 +42,7 @@ class Map():
         self.init_speed = 5
         self.init_waterball = 2
         self.init_power = 2
-        self.size = [30, 30]
+        self.size = [40,40]
         self.status = 0
         self.player = []
         play_pos = [[0, 0], [480, 480]]
